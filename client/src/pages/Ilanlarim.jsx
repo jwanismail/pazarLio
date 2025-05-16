@@ -19,7 +19,7 @@ const Ilanlarim = () => {
       const fetchIlanlar = async () => {
         try {
           console.log('İlanlar getiriliyor...', storedKullaniciAdi);
-          const response = await fetch(`http://localhost:5001/api/ilanlar/kullanici/${storedKullaniciAdi}`);
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/kullanici/${storedKullaniciAdi}`);
           if (!response.ok) {
             throw new Error('İlanlar yüklenirken bir hata oluştu');
           }
@@ -46,7 +46,7 @@ const Ilanlarim = () => {
     if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
       try {
         // Sunucudan ilanı sil
-        const response = await fetch(`http://localhost:5001/api/ilanlar/${ilanId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${ilanId}`, {
           method: 'DELETE',
         });
 

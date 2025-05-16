@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, sifre) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
         email,
         sifre
       })
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (kullaniciAdi, email, sifre, telefon) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/register', {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/register`, {
         kullaniciAdi,
         email,
         sifre,

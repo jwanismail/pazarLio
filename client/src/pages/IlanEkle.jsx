@@ -124,7 +124,7 @@ const IlanEkle = () => {
       });
 
       // API'ye gönder
-      const response = await fetch('http://localhost:5001/api/ilanlar', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

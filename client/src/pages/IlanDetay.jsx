@@ -13,7 +13,7 @@ const IlanDetay = () => {
   useEffect(() => {
     const loadIlan = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/ilanlar/${id}`)
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${id}`)
         if (!response.ok) {
           throw new Error('İlan bulunamadı')
         }
@@ -35,7 +35,7 @@ const IlanDetay = () => {
 
   const handleSatildi = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/api/ilanlar/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

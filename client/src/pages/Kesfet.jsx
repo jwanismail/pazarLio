@@ -30,7 +30,7 @@ const Kesfet = () => {
     try {
       setLoading(true)
       const response = await fetch(
-        `http://localhost:5001/api/ilanlar?page=${currentPage}&limit=20&search=${searchTerm}&category=${selectedCategory}&showSold=${showSold}`
+        `${import.meta.env.VITE_API_URL}/api/ilanlar?page=${currentPage}&limit=20&search=${searchTerm}&category=${selectedCategory}&showSold=${showSold}`
       )
       const data = await response.json()
       setIlanlar(data.ilanlar)
