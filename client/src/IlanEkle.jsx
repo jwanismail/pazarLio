@@ -16,7 +16,7 @@ const IlanEkle = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:3000/ilanlar", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/ilanlar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),

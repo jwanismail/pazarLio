@@ -66,7 +66,7 @@ function App() {
             <Route path="/kullanici-belirle" element={<KullaniciBelirle />} />
           </Routes>
         </main>
-      </div>
+    </div>
     </Router>
   )
 }

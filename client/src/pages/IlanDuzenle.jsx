@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FaImage, FaMapMarkerAlt, FaTrash } from 'react-icons/fa'
+import { FaImage, FaMapMarkerAlt, FaTrash, FaPhone, FaTag } from 'react-icons/fa'
 
 const IlanDuzenle = () => {
   const { id } = useParams()
@@ -10,12 +10,24 @@ const IlanDuzenle = () => {
     aciklama: '',
     fiyat: '',
     konum: '',
+    iletisim: '',
+    kategori: '',
     resimler: [],
     satildi: false
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [kullaniciAdi, setKullaniciAdi] = useState('')
+
+  // Kategori seçenekleri
+  const kategoriler = [
+    'Yemek',
+    'Kozmetik',
+    'Giyim',
+    'Teknoloji',
+    'Elektronik Sigara & Puff',
+    'Diğer'
+  ]
 
   useEffect(() => {
     // Kullanıcı adını localStorage'dan al
@@ -26,30 +38,41 @@ const IlanDuzenle = () => {
     }
     setKullaniciAdi(storedKullaniciAdi)
 
-    // İlanı localStorage'dan al
-    const storedIlanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]')
-    const ilan = storedIlanlar.find(i => i.id === id)
+    // İlanı API'den al
+    const fetchIlan = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${id}`)
+        const data = await response.json()
 
-    if (!ilan) {
-      navigate('/ilanlarim')
-      return
+        if (!response.ok) {
+          throw new Error(data.message || 'İlan yüklenirken bir hata oluştu')
+        }
+
+        // İlanın sahibi kontrolü
+        if (data.ilan.kullaniciAdi !== storedKullaniciAdi) {
+          navigate('/ilanlarim')
+          return
+        }
+
+        setFormData({
+          baslik: data.ilan.baslik,
+          aciklama: data.ilan.aciklama,
+          fiyat: data.ilan.fiyat,
+          konum: data.ilan.konum,
+          iletisim: data.ilan.iletisim,
+          kategori: data.ilan.kategori,
+          resimler: data.ilan.resimler || [],
+          satildi: data.ilan.satildi || false
+        })
+      } catch (err) {
+        console.error('İlan yükleme hatası:', err)
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    // İlanın sahibi kontrolü
-    if (ilan.kullaniciAdi !== storedKullaniciAdi) {
-      navigate('/ilanlarim')
-      return
-    }
-
-    setFormData({
-      baslik: ilan.baslik,
-      aciklama: ilan.aciklama,
-      fiyat: ilan.fiyat,
-      konum: ilan.konum,
-      resimler: ilan.resimler || [],
-      satildi: ilan.satildi || false
-    })
-    setLoading(false)
+    fetchIlan()
   }, [id, navigate])
 
   const handleImageChange = async (e) => {
@@ -78,10 +101,42 @@ const IlanDuzenle = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
+    
+    if (name === 'iletisim') {
+      // Eğer değer boşsa, boş bırak
+      if (!value) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: ''
+        }))
+        return
+      }
+
+      // +90 prefix'ini kaldır ve sadece rakamları al
+      const numbers = value.replace('+90 ', '').replace(/\D/g, '')
+      
+      // İlk rakam 0 ise, onu kaldır
+      const cleanNumbers = numbers.startsWith('0') ? numbers.slice(1) : numbers
+      
+      // Maksimum 10 rakam olacak şekilde sınırla
+      const limitedNumbers = cleanNumbers.slice(0, 10)
+      
+      // Format: +90 5XX XXX XX XX
+      let formattedNumber = ''
+      if (limitedNumbers.length > 0) {
+        formattedNumber = '+90 ' + limitedNumbers.replace(/(\d{3})(\d{3})(\d{2})(\d{2})/, '$1 $2 $3 $4')
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        [name]: formattedNumber
+      }))
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
+      }))
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -91,37 +146,37 @@ const IlanDuzenle = () => {
 
     try {
       // Form verilerini kontrol et
-      if (!formData.baslik || !formData.aciklama || !formData.fiyat || !formData.konum) {
+      if (!formData.baslik || !formData.aciklama || !formData.fiyat || !formData.konum || !formData.kategori || !formData.iletisim) {
         throw new Error('Lütfen tüm alanları doldurun')
       }
-      if (formData.resimler.length === 0) {
-        throw new Error('En az bir resim yüklemelisiniz')
-      }
 
-      // localStorage'dan ilanları al
-      const storedIlanlar = JSON.parse(localStorage.getItem('ilanlar') || '[]')
-      
-      // İlanı güncelle
-      const guncelIlanlar = storedIlanlar.map(ilan => {
-        if (ilan.id === id) {
-          return {
-            ...ilan,
-            ...formData,
-            kullaniciAdi,
-            tarih: new Date().toISOString()
-          }
-        }
-        return ilan
+      console.log('Gönderilecek veri:', formData);
+
+      // API'ye gönder
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          kullaniciAdi
+        }),
       })
-      
-      // localStorage'a kaydet
-      localStorage.setItem('ilanlar', JSON.stringify(guncelIlanlar))
 
+      const data = await response.json()
+      console.log('Sunucu yanıtı:', data)
+
+      if (!response.ok) {
+        throw new Error(data.message || 'İlan güncellenirken bir hata oluştu')
+      }
+      
       // Başarılı mesajı göster ve ilanlarım sayfasına yönlendir
       alert('İlan başarıyla güncellendi!')
       navigate('/ilanlarim')
     } catch (err) {
-      setError(err.message)
+      console.error('İlan güncelleme hatası:', err)
+      setError(err.message || 'İlan güncellenirken bir hata oluştu. Lütfen tekrar deneyin.')
     } finally {
       setLoading(false)
     }
@@ -199,53 +254,96 @@ const IlanDuzenle = () => {
             </div>
 
             <div>
+              <label htmlFor="kategori" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Kategori
+              </label>
+              <select
+                id="kategori"
+                name="kategori"
+                value={formData.kategori}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                required
+              >
+                <option value="">Kategori Seçin</option>
+                {kategoriler.map((kategori) => (
+                  <option key={kategori} value={kategori}>
+                    {kategori}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="konum" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Konum
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaMapMarkerAlt className="h-5 w-5 text-gray-400" />
-                </div>
                 <input
                   type="text"
                   id="konum"
                   name="konum"
                   value={formData.konum}
                   onChange={handleChange}
-                  className="block w-full rounded-md border-gray-300 pl-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   required
                 />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaMapMarkerAlt className="text-gray-500" />
+                </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label htmlFor="iletisim" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                İletişim
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <input
+                  type="tel"
+                  id="iletisim"
+                  name="iletisim"
+                  value={formData.iletisim}
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  placeholder="+90 5XX XXX XX XX"
+                  required
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaPhone className="text-gray-500" />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Resimler
               </label>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {formData.resimler.map((resim, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={resim}
+                      alt={`Resim ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
               <input
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-300"
               />
-              {formData.resimler.length > 0 && (
-                <div className="mt-4 grid grid-cols-3 gap-4">
-                  {formData.resimler.map((img, idx) => (
-                    <div key={idx} className="relative group">
-                      <img src={img} alt={`Yüklenen resim ${idx + 1}`} className="h-24 w-full object-cover rounded-md" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(idx)}
-                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-80 group-hover:opacity-100"
-                        title="Resmi Kaldır"
-                      >
-                        <FaTrash className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="flex items-center">
@@ -258,17 +356,24 @@ const IlanDuzenle = () => {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="satildi" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
-                Satıldı olarak işaretle
+                İlan Satıldı
               </label>
             </div>
 
-            <div>
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => navigate('/ilanlarim')}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+              >
+                İptal
+              </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {loading ? 'İlan Güncelleniyor...' : 'İlanı Güncelle'}
+                {loading ? 'Güncelleniyor...' : 'Güncelle'}
               </button>
             </div>
           </form>
