@@ -128,7 +128,10 @@ const IlanEkle = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        mode: 'cors',
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           kullaniciAdi,
