@@ -7,6 +7,7 @@ const Ilanlarim = () => {
   const [ilanlar, setIlanlar] = useState([])
   const [loading, setLoading] = useState(true)
   const [kullaniciAdi, setKullaniciAdi] = useState('')
+  const [error, setError] = useState('')
 
   useEffect(() => {
     // Kullanıcı adını localStorage'dan al
@@ -15,38 +16,38 @@ const Ilanlarim = () => {
       navigate('/kullanici-belirle')
     } else {
       setKullaniciAdi(storedKullaniciAdi)
-      // İlanları sunucudan çek
-      const fetchIlanlar = async () => {
-        try {
-          console.log('İlanlar getiriliyor...', storedKullaniciAdi);
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/kullanici/${storedKullaniciAdi}`);
-          if (!response.ok) {
-            throw new Error('İlanlar yüklenirken bir hata oluştu');
-          }
-          const data = await response.json();
-          console.log('Gelen ilanlar:', data);
-          if (data.success && data.ilanlar) {
-            setIlanlar(data.ilanlar);
-          } else {
-            setIlanlar([]);
-          }
-          setLoading(false);
-        } catch (error) {
-          console.error('İlanlar yüklenirken hata:', error);
-          setLoading(false);
-          setIlanlar([]);
-        }
-      };
-
-      fetchIlanlar();
     }
   }, [navigate])
+
+  useEffect(() => {
+    if (kullaniciAdi) {
+      const fetchIlanlar = async () => {
+        try {
+          setLoading(true)
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/kullanici/${kullaniciAdi}`)
+          const data = await response.json()
+          if (data.success) {
+            setIlanlar(data.ilanlar)
+          } else {
+            throw new Error(data.message || 'İlanlar yüklenirken bir hata oluştu')
+          }
+        } catch (error) {
+          console.error('İlanlar yüklenirken hata:', error)
+          setError(error.message)
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      fetchIlanlar()
+    }
+  }, [kullaniciAdi])
 
   const handleDelete = async (ilanId) => {
     if (window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
       try {
         // Sunucudan ilanı sil
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${ilanId}`, {
+        const response = await fetch(`http://localhost:5001/api/ilanlar/${ilanId}`, {
           method: 'DELETE',
         });
 

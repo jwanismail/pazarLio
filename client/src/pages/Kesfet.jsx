@@ -13,6 +13,8 @@ const Kesfet = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalIlanlar, setTotalIlanlar] = useState(0)
+  const [error, setError] = useState('')
+  const itemsPerPage = 20
 
   const kategoriler = [
     'Yemek',
@@ -29,15 +31,18 @@ const Kesfet = () => {
   const fetchIlanlar = async () => {
     try {
       setLoading(true)
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/ilanlar?page=${currentPage}&limit=20&search=${searchTerm}&category=${selectedCategory}&showSold=${showSold}`
-      )
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar?page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&category=${selectedCategory}&showSold=${showSold}`)
       const data = await response.json()
-      setIlanlar(data.ilanlar)
-      setTotalPages(data.totalPages)
-      setTotalIlanlar(data.totalIlanlar)
+      if (data.success) {
+        setIlanlar(data.ilanlar)
+        setTotalPages(data.totalPages)
+        setTotalIlanlar(data.totalIlanlar)
+      } else {
+        throw new Error(data.message || 'İlanlar yüklenirken bir hata oluştu')
+      }
     } catch (error) {
       console.error('İlanlar yüklenirken hata:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
     }

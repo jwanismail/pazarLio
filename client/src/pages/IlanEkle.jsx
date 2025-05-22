@@ -124,31 +124,46 @@ const IlanEkle = () => {
       });
 
       // API'ye gönder
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-        credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          kullaniciAdi,
-          tarih: new Date().toISOString()
-        }),
-      })
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
 
-      const data = await response.json();
-      console.log('Sunucu yanıtı:', data);
+      try {
+        console.log('İstek gönderiliyor...');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ...formData,
+            kullaniciAdi,
+            tarih: new Date().toISOString()
+          })
+        });
 
-      if (!response.ok) {
-        throw new Error(data.message || 'İlan eklenirken bir hata oluştu')
+        clearTimeout(timeoutId);
+        console.log('Sunucu yanıtı alındı:', response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Sunucu hatası:', errorData);
+          throw new Error(errorData.message || 'İlan eklenirken bir hata oluştu');
+        }
+
+        const data = await response.json();
+        console.log('Sunucu yanıtı:', data);
+        
+        // Başarılı mesajı göster ve keşfet sayfasına yönlendir
+        alert('İlan başarıyla eklendi!')
+        navigate('/kesfet')
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.error('İstek zaman aşımına uğradı');
+          throw new Error('İstek zaman aşımına uğradı. Lütfen tekrar deneyin.');
+        }
+        console.error('İstek hatası:', err);
+        throw err;
       }
-      
-      // Başarılı mesajı göster ve keşfet sayfasına yönlendir
-      alert('İlan başarıyla eklendi!')
-      navigate('/kesfet')
     } catch (err) {
       console.error('İlan ekleme hatası:', err)
       setError(err.message || 'İlan eklenirken bir hata oluştu. Lütfen tekrar deneyin.')

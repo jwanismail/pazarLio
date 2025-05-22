@@ -7,14 +7,10 @@ const Ilan = require('./models/Ilan'); // İlan modelini import et
 
 const app = express();
 
-// CORS ayarları
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://pazarlio.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
+// CORS ayarları - En basit hali
+app.use(cors());
 
+// Express middleware'leri
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
@@ -310,7 +306,7 @@ app.get('/api/ilanlar/kullanici/:kullaniciAdi', async (req, res) => {
 })
 
 // Port ayarı
-const PORT = process.env.PORT || 10000
+const PORT = process.env.PORT || 5001
 
 // Sunucuyu başlat
 app.listen(PORT, '0.0.0.0', () => {

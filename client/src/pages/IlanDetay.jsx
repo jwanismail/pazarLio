@@ -9,28 +9,28 @@ const IlanDetay = () => {
   const [selectedImage, setSelectedImage] = useState(0)
   const [kullaniciAdi, setKullaniciAdi] = useState(localStorage.getItem('kullaniciAdi') || 'Misafir Kullanıcı')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    const loadIlan = async () => {
+    const fetchIlanDetay = async () => {
       try {
+        setLoading(true)
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/ilanlar/${id}`)
-        if (!response.ok) {
-          throw new Error('İlan bulunamadı')
-        }
         const data = await response.json()
         if (data.success) {
           setIlan(data.ilan)
         } else {
-          throw new Error(data.message || 'İlan yüklenirken bir hata oluştu')
+          throw new Error(data.message || 'İlan detayı yüklenirken bir hata oluştu')
         }
       } catch (error) {
-        console.error('İlan yüklenirken hata oluştu:', error)
+        console.error('İlan detayı yüklenirken hata:', error)
+        setError(error.message)
       } finally {
         setLoading(false)
       }
     }
 
-    loadIlan()
+    fetchIlanDetay()
   }, [id])
 
   const handleSatildi = async () => {
