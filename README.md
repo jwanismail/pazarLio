@@ -24,7 +24,7 @@ Türkiye'nin en güvenilir ikinci el alışveriş platformu.
 ### Environment Variables
 ```env
 # Backend
-MONGODB_URI=mongodb+srv://...
+MONGODB_URI=mongodb+srv://civanelismail571:Hirciv19@pazarlio2.kegaoz4.mongodb.net/ilan-db?retryWrites=true&w=majority&appName=pazarLio2
 JWT_SECRET=your-secret-key
 PORT=10000
 

@@ -6,6 +6,8 @@ services:
     startCommand: cd server && node server.js
     envVars:
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://civanelismail571:Hirciv19@pazarlio2.kegaoz4.mongodb.net/ilan-db?retryWrites=true&w=majority&appName=pazarLio2
       - key: PORT
-        value: 10000 
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true 

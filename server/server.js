@@ -24,19 +24,21 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/', authRoutes);
 
 // MongoDB bağlantısı
-mongoose.connect(process.env.MONGODB_URI, {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://civanelismail571:Hirciv19@pazarlio2.kegaoz4.mongodb.net/ilan-db?retryWrites=true&w=majority&appName=pazarLio2';
+
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 })
 .then(() => {
-  console.log('MongoDB bağlantısı başarılı')
-  console.log('Bağlantı URL:', process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
+  console.log('MongoDB Atlas bağlantısı başarılı')
+  console.log('Bağlantı URL:', MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
 })
 .catch(err => {
-  console.error('MongoDB bağlantısı hatası:', err)
-  console.error('Bağlantı URL:', process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
+  console.error('MongoDB Atlas bağlantısı hatası:', err)
+  console.error('Bağlantı URL:', MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
 })
 
 // Test endpoint'i
@@ -316,7 +318,7 @@ app.get('/api/ilanlar/kullanici/:kullaniciId', async (req, res) => {
 })
 
 // Port ayarı
-const PORT = 5002
+const PORT = process.env.PORT || 5002
 
 // Sunucuyu başlat
 app.listen(PORT, '0.0.0.0', () => {
