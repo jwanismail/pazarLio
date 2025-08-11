@@ -36,6 +36,10 @@ const ilanSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Kullanıcı adı zorunludur']
   },
+  kullaniciId: {
+    type: String,
+    required: false
+  },
   satildi: {
     type: Boolean,
     default: false

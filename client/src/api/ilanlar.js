@@ -1,10 +1,13 @@
-import api from './auth'
+import axios from 'axios'
+
+// API base URL - production için Render URL'inizi kullanın
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pazarlio-api.onrender.com';
 
 export const ilanService = {
   // Kullanıcının ilanlarını getir
   getMyIlanlar: async () => {
     try {
-      const response = await api.get('/ilanlar/benim-ilanlarim')
+      const response = await axios.get(`${API_BASE_URL}/ilanlar/benim-ilanlarim`)
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
@@ -14,7 +17,7 @@ export const ilanService = {
   // Yeni ilan oluştur
   createIlan: async (ilanData) => {
     try {
-      const response = await api.post('/ilanlar', ilanData)
+      const response = await axios.post(`${API_BASE_URL}/ilanlar`, ilanData)
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
@@ -24,7 +27,7 @@ export const ilanService = {
   // İlan güncelle
   updateIlan: async (id, ilanData) => {
     try {
-      const response = await api.put(`/ilanlar/${id}`, ilanData)
+      const response = await axios.put(`${API_BASE_URL}/ilanlar/${id}`, ilanData)
       return response.data
     } catch (error) {
       throw error.response?.data || error.message
@@ -34,7 +37,7 @@ export const ilanService = {
   // İlan sil
   deleteIlan: async (id) => {
     try {
-      const response = await api.delete(`/ilanlar/${id}`)
+      const response = await axios.delete(`${API_BASE_URL}/ilanlar/${id}`)
       return response.data
     } catch (error) {
       throw error.response?.data || error.message

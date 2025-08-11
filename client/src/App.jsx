@@ -1,6 +1,8 @@
 // App.jsx
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
+import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Kesfet from './pages/Kesfet'
@@ -9,6 +11,10 @@ import IlanDetay from './pages/IlanDetay'
 import Ilanlarim from './pages/Ilanlarim'
 import IlanDuzenle from './pages/IlanDuzenle'
 import KullaniciBelirle from './pages/KullaniciBelirle'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import TelefonDogrulama from './pages/TelefonDogrulama'
+import SifremiUnuttum from './pages/SifremiUnuttum'
 import './App.css'
 
 function App() {
@@ -51,23 +57,31 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/kesfet" element={<Kesfet />} />
-            <Route path="/ilan-ekle" element={<IlanEkle />} />
-            <Route path="/ilan-ver" element={<IlanEkle />} />
-            <Route path="/ilan-detay/:id" element={<IlanDetay />} />
-            <Route path="/ilanlarim" element={<Ilanlarim />} />
-            <Route path="/ilan-duzenle/:id" element={<IlanDuzenle />} />
-            <Route path="/kullanici-belirle" element={<KullaniciBelirle />} />
-          </Routes>
-        </main>
-    </div>
-    </Router>
+    <HelmetProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+            <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/kesfet" element={<Kesfet />} />
+                <Route path="/ilan-ekle" element={<IlanEkle />} />
+                <Route path="/ilan-ver" element={<IlanEkle />} />
+                <Route path="/ilan-detay/:id" element={<IlanDetay />} />
+                <Route path="/ilanlarim" element={<Ilanlarim />} />
+                <Route path="/ilan-duzenle/:id" element={<IlanDuzenle />} />
+                <Route path="/kullanici-belirle" element={<KullaniciBelirle />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/telefon-dogrulama" element={<TelefonDogrulama />} />
+                <Route path="/sifremi-unuttum" element={<SifremiUnuttum />} />
+              </Routes>
+            </main>
+        </div>
+        </Router>
+      </AuthProvider>
+    </HelmetProvider>
   )
 }
 

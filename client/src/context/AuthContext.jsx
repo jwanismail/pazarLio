@@ -3,6 +3,9 @@ import axios from 'axios'
 
 const AuthContext = createContext()
 
+// API URL'ini doğrudan tanımla
+const API_URL = 'http://localhost:5002'
+
 export const useAuth = () => {
   return useContext(AuthContext)
 }
@@ -20,10 +23,10 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  const login = async (email, sifre) => {
+  const login = async (emailOrPhone, sifre) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, {
-        email,
+      const response = await axios.post(`${API_URL}/giris`, {
+        emailOrPhone,
         sifre
       })
       const userData = response.data
@@ -33,24 +36,28 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Giriş yapılırken bir hata oluştu'
+        error: error.response?.data?.message || 'Giriş yapılırken bir hata oluştu'
       }
     }
   }
 
-  const register = async (kullaniciAdi, email, sifre, telefon) => {
+  const register = async (ad, soyad, email, telefon, sifre) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/register`, {
-        kullaniciAdi,
+      const response = await axios.post(`${API_URL}/kayit`, {
+        ad,
+        soyad,
         email,
-        sifre,
-        telefon
+        telefon,
+        sifre
       })
+      const userData = response.data
+      setUser(userData)
+      localStorage.setItem('user', JSON.stringify(userData))
       return { success: true }
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'Kayıt olurken bir hata oluştu'
+        error: error.response?.data?.message || 'Kayıt olurken bir hata oluştu'
       }
     }
   }

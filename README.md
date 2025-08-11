@@ -1,12 +1,65 @@
-# React + Vite
+# PazarLio - İkinci El Alışveriş Platformu
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Türkiye'nin en güvenilir ikinci el alışveriş platformu.
 
-Currently, two official plugins are available:
+## 🌐 Canlı Site
+- **Frontend:** https://pazarlio.com
+- **API:** https://pazarlio-api.onrender.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Deployment
 
-## Expanding the ESLint configuration
+### Gereksinimler
+- Node.js 18+
+- MongoDB Atlas
+- Render.com hesabı
+- Domain (.com)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Adımlar
+1. **Domain Satın Alın** (GoDaddy, Namecheap vb.)
+2. **Render'da Servisleri Oluşturun**
+3. **Environment Variables Ayarlayın**
+4. **DNS Ayarlarını Yapın**
+5. **SSL Sertifikasını Bekleyin**
+
+### Environment Variables
+```env
+# Backend
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your-secret-key
+PORT=10000
+
+# Frontend
+VITE_API_URL=https://pazarlio-api.onrender.com
+```
+
+## 🛠️ Geliştirme
+
+```bash
+# Frontend
+cd client
+npm install
+npm run dev
+
+# Backend
+cd server
+npm install
+npm run dev
+```
+
+## 📱 Özellikler
+- ✅ Kullanıcı kayıt/giriş
+- ✅ İlan ekleme/düzenleme/silme
+- ✅ Arama ve filtreleme
+- ✅ Çoklu dil desteği
+- ✅ Responsive tasarım
+- ✅ PWA desteği
+
+## 🔧 Teknolojiler
+- **Frontend:** React, Vite, Tailwind CSS
+- **Backend:** Node.js, Express, MongoDB
+- **Deployment:** Render.com
+- **Domain:** Custom .com domain
+
+## 📞 İletişim
+- Website: https://pazarlio.com
+- Email: info@pazarlio.com

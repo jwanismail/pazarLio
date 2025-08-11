@@ -4,15 +4,24 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Ilan = require('./models/Ilan'); // İlan modelini import et
+const authRoutes = require('./routes/auth'); // Auth route'larını import et
 
 const app = express();
 
-// CORS ayarları - En basit hali
-app.use(cors());
+// CORS ayarları - Daha detaylı
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'https://pazarlio.onrender.com', 'https://pazarlio.com', 'https://www.pazarlio.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Express middleware'leri
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Auth route'larını ekle
+app.use('/', authRoutes);
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI, {
@@ -26,7 +35,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.log('Bağlantı URL:', process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
 })
 .catch(err => {
-  console.error('MongoDB bağlantı hatası:', err)
+  console.error('MongoDB bağlantısı hatası:', err)
   console.error('Bağlantı URL:', process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//****:****@'))
 })
 
@@ -41,7 +50,7 @@ app.post('/api/ilanlar', async (req, res) => {
     console.log('Gelen veri:', req.body)
 
     // Veri doğrulama
-    const { baslik, aciklama, fiyat, konum, kategori, resimler, kullaniciAdi, iletisim } = req.body
+    const { baslik, aciklama, fiyat, konum, kategori, resimler, kullaniciAdi, kullaniciId, iletisim } = req.body
 
     if (!baslik || !aciklama || !fiyat || !konum || !kategori || !kullaniciAdi || !iletisim) {
       return res.status(400).json({
@@ -60,6 +69,7 @@ app.post('/api/ilanlar', async (req, res) => {
       iletisim,
       resimler: resimler || [],
       kullaniciAdi,
+      kullaniciId: kullaniciId || null,
       satildi: false,
       tarih: new Date()
     })
@@ -285,10 +295,10 @@ app.delete('/api/ilanlar/:id', async (req, res) => {
   }
 })
 
-// Kullanıcının ilanlarını getirme
-app.get('/api/ilanlar/kullanici/:kullaniciAdi', async (req, res) => {
+// Kullanıcının ilanlarını getirme - kullaniciId ile
+app.get('/api/ilanlar/kullanici/:kullaniciId', async (req, res) => {
   try {
-    const ilanlar = await Ilan.find({ kullaniciAdi: req.params.kullaniciAdi })
+    const ilanlar = await Ilan.find({ kullaniciId: req.params.kullaniciId })
       .sort({ tarih: -1 })
     
     res.json({
@@ -306,7 +316,7 @@ app.get('/api/ilanlar/kullanici/:kullaniciAdi', async (req, res) => {
 })
 
 // Port ayarı
-const PORT = process.env.PORT || 5001
+const PORT = 5002
 
 // Sunucuyu başlat
 app.listen(PORT, '0.0.0.0', () => {

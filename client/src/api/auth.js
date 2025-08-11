@@ -1,10 +1,11 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL
+// API base URL - production için Render URL'inizi kullanın
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pazarlio-api.onrender.com';
 
 // Axios instance oluştur
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }

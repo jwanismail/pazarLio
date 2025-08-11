@@ -22,11 +22,24 @@ const userSchema = new mongoose.Schema({
   telefon: {
     type: String,
     required: [true, 'Telefon alanı zorunludur'],
+    unique: true,
     trim: true
   },
   sifre: {
     type: String,
     required: [true, 'Şifre alanı zorunludur']
+  },
+  telefonDogrulandi: {
+    type: Boolean,
+    default: false
+  },
+  dogrulamaKodu: {
+    type: String,
+    default: null
+  },
+  dogrulamaKoduGecerlilik: {
+    type: Date,
+    default: null
   },
   createdAt: {
     type: Date,
@@ -37,6 +50,11 @@ const userSchema = new mongoose.Schema({
 // Şifreyi hashle
 userSchema.pre('save', async function(next) {
   if (!this.isModified('sifre')) return next()
+  
+  // Eğer şifre zaten hashlenmişse tekrar hashleme
+  if (this.sifre && this.sifre.length > 20) {
+    return next()
+  }
   
   try {
     const salt = await bcrypt.genSalt(10)
